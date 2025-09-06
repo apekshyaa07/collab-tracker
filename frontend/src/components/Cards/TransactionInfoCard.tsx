@@ -1,0 +1,120 @@
+"use client";
+
+import React from "react";
+import Image from "next/image";
+import {
+  LuUtensils,
+  LuTrendingUp,
+  LuTrendingDown,
+  LuTrash2,
+  LuPencil,
+  LuRepeat,
+  LuSquare,
+  LuDollarSign,
+} from "react-icons/lu";
+import { formatCurrency } from "~/utils/constants";
+import type { RecurringPeriod, AnomalyTransaction } from "~/types/transaction.types";
+
+interface TransactionInfoCardProps {
+  icon?: string;
+  title: string;
+  badge?: string;
+  date: string;
+  amount: string | number;
+  type: "income" | "expense";
+  hideDeleteBtn?: boolean;
+  onDelete?: () => void;
+  onEdit?: () => void;
+  onToggleRecurring?: () => void;
+  isRecurring?: boolean;
+  recurringPeriod?: RecurringPeriod;
+  isVirtual?: boolean;
+  anomalyData?: AnomalyTransaction;
+}
+
+const TransactionInfoCard: React.FC<TransactionInfoCardProps> = ({
+  icon,
+  title,
+  badge,
+  date,
+  amount,
+  type,
+  hideDeleteBtn,
+  onDelete,
+  onEdit,
+  onToggleRecurring,
+  isRecurring,
+  recurringPeriod,
+  isVirtual,
+  anomalyData,
+}) => {
+  const getAmountStyles = () =>
+    type === "income" ? "bg-green-50 text-green-500" : "bg-red-50 text-red-500";
+
+  return (
+    <div className="group relative mt-2 flex items-center gap-4 rounded-lg p-3 hover:bg-gray-100/60">
+      <div className={`flex h-12 w-12 items-center justify-center rounded-full text-xl ${type === "income" ? "bg-green-50" : "bg-red-50"}`}>
+        <LuDollarSign className={type === "income" ? "text-green-600" : "text-red-600"} />
+      </div>
+
+      <div className="flex flex-1 flex-col justify-between">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div>
+              <p className="text-sm font-medium text-gray-700">{title}</p>
+              <p className="mt-1 text-xs text-gray-400">{date}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {onEdit && !isVirtual && (
+              <button
+                className="cursor-pointer text-gray-400 opacity-0 transition-opacity group-hover:opacity-100 hover:text-blue-500"
+                onClick={onEdit}
+                title="Edit transaction"
+              >
+                <LuPencil size={18} />
+              </button>
+            )}
+            {!hideDeleteBtn && (
+              <button
+                className="cursor-pointer text-gray-400 opacity-0 transition-opacity group-hover:opacity-100 hover:text-red-500"
+                onClick={onDelete}
+                title="Delete transaction"
+              >
+                <LuTrash2 size={18} />
+              </button>
+            )}
+
+            <div
+              className={`flex items-center gap-2 rounded-md px-3 py-1.5 ${getAmountStyles()}`}
+            >
+              <h6 className="text-xs font-medium">
+                {type === "income" ? "+" : "-"} {formatCurrency(amount)}
+              </h6>
+              {type === "income" ? <LuTrendingUp /> : <LuTrendingDown />}
+            </div>
+          </div>
+        </div>
+        <div className="mt-2 flex items-center gap-2 flex-wrap">
+          {badge && (
+            <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+              {badge}
+            </span>
+          )}
+          {isRecurring && (
+            <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
+              Recurring {recurringPeriod}
+            </span>
+          )}
+          {anomalyData && (
+            <span className="inline-flex items-center rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-800">
+              Anomaly
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default TransactionInfoCard;
