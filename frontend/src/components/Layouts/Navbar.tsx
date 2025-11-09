@@ -12,7 +12,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeMenu }) => {
   const [openSideMenu, setOpenSideMenu] = useState(false);
 
   return (
-    <div className="flex gap-5 bg-white border boredr-b border-gray-200/50 backdrop-blur-[2px] py-4 px-7 sticky top-0 z-30">
+    <div className="boredr-b sticky top-0 z-30 flex gap-5 border border-gray-200/50 bg-white px-7 py-4 backdrop-blur-[2px]">
       <button
         className="block lg:hidden text-black"
         onClick={() => {
@@ -26,7 +26,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeMenu }) => {
         )}
       </button>
 
-      <h2 className="text-lg font-medium text-black">Smart Finance Tracker</h2>
+      <h2 className="text-lg font-medium text-black">Collab Tracker</h2>
 
       {openSideMenu && (
         <div className="fixed top-[61px] -ml-4 bg-white">

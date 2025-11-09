@@ -21,7 +21,10 @@ interface User {
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [serverError, setServerError] = useState("");
 
   const context = useContext(UserContext);
   if (!context) {
@@ -30,47 +33,46 @@ const LoginForm = () => {
   const { updateUser } = context;
   const router = useRouter();
 
-  // Handle Login Form Submit
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    let isValid = true;
+
+    // Email Validation
     if (!validateEmail(email)) {
-      setError("Please enter a valid email address.");
-      return;
+      setEmailError("Please enter a valid email address.");
+      isValid = false;
+    } else {
+      setEmailError("");
     }
 
+    // Password Validation
     if (!password) {
-      setError("Please enter the password");
-      return;
+      setPasswordError("Please enter a password.");
+      isValid = false;
+    } else {
+      setPasswordError("");
     }
 
-    setError("");
+    if (!isValid) return;
 
-    //Login API Call
+    setServerError("");
+
     try {
       const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
         email,
         password,
       });
+
       const { data } = response.data as { data: { user: User; accessToken: string; refreshToken: string } };
 
       if (data.user) {
-        // Convert _id to id for frontend compatibility
         const userWithId = { ...data.user, id: data.user._id };
         updateUser(userWithId);
         router.push("/dashboard");
       }
-    } catch (error: unknown) {
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { data?: { message?: string } } };
-        if (axiosError.response?.data?.message) {
-          setError(axiosError.response.data.message);
-        } else {
-          setError("Something went wrong. Please try again.");
-        }
-      } else {
-        setError("Something went wrong. Please try again.");
-      }
+    } catch (error: any) {
+      setServerError(error?.response?.data?.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -90,6 +92,7 @@ const LoginForm = () => {
             placeholder="john@example.com"
             type="text"
           />
+          {emailError && <p className="text-red-500 text-xs mb-2">{emailError}</p>}
 
           <Input
             value={password}
@@ -98,8 +101,9 @@ const LoginForm = () => {
             placeholder="Min 8 Characters"
             type="password"
           />
+          {passwordError && <p className="text-red-500 text-xs mb-2">{passwordError}</p>}
 
-          {error && <p className="text-red-500 text-xs pb-2.5">{error}</p>}
+          {serverError && <p className="text-red-500 text-xs pb-2.5">{serverError}</p>}
 
           <button type="submit" className="btn-primary">
             LOGIN
